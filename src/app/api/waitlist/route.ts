@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { brandName, instagram, category, email, whatsapp } = body;
+
+    // Check if Supabase environment variables are configured
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase credentials are not configured in .env.local');
+      return NextResponse.json(
+        { error: 'Server configuration error. Database credentials are missing.' },
+        { status: 500 }
+      );
+    }
 
     // Validate fields
     if (!brandName || !instagram || !category || !email || !whatsapp) {
@@ -24,64 +32,94 @@ export async function POST(request: Request) {
       );
     }
 
-    const dataDirectory = path.join(process.cwd(), 'src', 'data');
-    const filePath = path.join(dataDirectory, 'waitlist.json');
-
-    // Create the directory if it doesn't exist
-    if (!fs.existsSync(dataDirectory)) {
-      fs.mkdirSync(dataDirectory, { recursive: true });
-    }
-
-    let waitlist = [];
-
-    // Read existing file if it exists
-    if (fs.existsSync(filePath)) {
-      try {
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        waitlist = JSON.parse(fileContent);
-      } catch (err) {
-        console.error('Error reading waitlist.json:', err);
-        waitlist = [];
-      }
-    }
-
-    // Check if email or instagram is already registered
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedInsta = instagram.trim().replace(/^@/, '').toLowerCase();
 
-    const exists = waitlist.some((item: any) => {
-      const itemEmail = item.email ? item.email.trim().toLowerCase() : '';
-      const itemInsta = item.instagram ? item.instagram.trim().replace(/^@/, '').toLowerCase() : '';
-      return itemEmail === normalizedEmail || itemInsta === normalizedInsta;
-    });
+    // Check if email or instagram is already registered in parallel
+    const [emailCheck, instaCheck] = await Promise.all([
+      supabase
+        .from('waitlist')
+        .select('email')
+        .ilike('email', normalizedEmail)
+        .maybeSingle(),
+      supabase
+        .from('waitlist')
+        .select('instagram')
+        .or(`instagram.ilike.${normalizedInsta},instagram.ilike.@${normalizedInsta}`)
+        .maybeSingle()
+    ]);
 
-    if (exists) {
+    if (emailCheck.error) {
+      console.error('Database error checking email:', emailCheck.error);
       return NextResponse.json(
-        { error: 'This email or Instagram handle has already joined the waitlist.' },
+        { error: 'Database validation check failed.' },
+        { status: 500 }
+      );
+    }
+
+    if (instaCheck.error) {
+      console.error('Database error checking Instagram:', instaCheck.error);
+      return NextResponse.json(
+        { error: 'Database validation check failed.' },
+        { status: 500 }
+      );
+    }
+
+    if (emailCheck.data) {
+      return NextResponse.json(
+        { error: 'This email has already joined the waitlist.' },
         { status: 409 }
       );
     }
 
-    const newEntry = {
-      id: Date.now().toString(),
-      brandName: brandName.trim(),
-      instagram: instagram.trim(),
-      category,
-      email: normalizedEmail,
-      whatsapp: whatsapp.trim(),
-      createdAt: new Date().toISOString(),
-      waitlistNumber: waitlist.length + 101, // Offset waitlist numbers to sound like an exclusive founding circle
-    };
+    if (instaCheck.data) {
+      return NextResponse.json(
+        { error: 'This Instagram handle has already joined the waitlist.' },
+        { status: 409 }
+      );
+    }
 
-    waitlist.push(newEntry);
+    // Insert new entry into Supabase
+    const { data: newEntry, error: insertError } = await supabase
+      .from('waitlist')
+      .insert({
+        brand_name: brandName.trim(),
+        instagram: instagram.trim(),
+        category,
+        email: normalizedEmail,
+        whatsapp: whatsapp.trim()
+      })
+      .select('waitlist_number')
+      .single();
 
-    // Save back to file
-    fs.writeFileSync(filePath, JSON.stringify(waitlist, null, 2), 'utf8');
+    if (insertError) {
+      console.error('Error inserting waitlist entry:', insertError);
+
+      // Handle race condition/uniqueness violation
+      if (insertError.code === '23505') {
+        return NextResponse.json(
+          { error: 'This email or Instagram handle has already joined the waitlist.' },
+          { status: 409 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: 'Failed to join waitlist. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    if (!newEntry) {
+      return NextResponse.json(
+        { error: 'Failed to retrieve waitlist number.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Successfully registered for waitlist',
-      waitlistNumber: newEntry.waitlistNumber,
+      waitlistNumber: Number(newEntry.waitlist_number),
     });
   } catch (error: any) {
     console.error('Waitlist API Error:', error);
@@ -91,3 +129,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
