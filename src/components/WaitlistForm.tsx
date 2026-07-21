@@ -19,7 +19,6 @@ export default function WaitlistForm() {
     brandName: '',
     instagram: '',
     category: '',
-    email: '',
     whatsapp: '',
   });
 
@@ -39,7 +38,7 @@ export default function WaitlistForm() {
 
   const handleInstagramBlur = () => {
     // Automatically prepend '@' if the user forgot it
-    let handle = formData.instagram.trim();
+    const handle = formData.instagram.trim();
     if (handle && !handle.startsWith('@')) {
       setFormData((prev) => ({
         ...prev,
@@ -53,8 +52,8 @@ export default function WaitlistForm() {
     setLoading(true);
     setError(null);
 
-    // Frontend validations
-    if (!formData.brandName || !formData.instagram || !formData.category || !formData.email || !formData.whatsapp) {
+    // Frontend validations (no email)
+    if (!formData.brandName || !formData.instagram || !formData.category || !formData.whatsapp) {
       setError('All fields are required.');
       setLoading(false);
       return;
@@ -77,15 +76,16 @@ export default function WaitlistForm() {
 
       setWaitlistNumber(data.waitlistNumber);
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section id="waitlist-section" className="relative w-full px-6 py-24 md:px-16 md:py-36 bg-black border-t border-white/5 scroll-mt-20">
+    <section id="waitlist-section" className="relative w-full px-6 py-16 md:px-16 md:py-24 bg-black border-t border-white/5 scroll-mt-20">
       
       {/* Decorative vertical separator */}
       <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/5 -translate-x-1/2 pointer-events-none hidden md:block" />
@@ -111,13 +111,13 @@ export default function WaitlistForm() {
                   Application Accepted
                 </span>
                 <h3 className="text-2xl font-light text-white tracking-wide">
-                  Welcome to the Founding Circle
+                  Welcome to Atlas
                 </h3>
               </div>
 
               <div className="my-4 py-4 px-8 border-y border-white/5 w-full">
-                <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest block">
-                  Founding Member ID
+                <span className="text-[10px] font-mono text-neutral-350 uppercase tracking-widest block font-medium">
+                  Seller Member ID
                 </span>
                 <span className="text-4xl font-light text-white font-mono block mt-2">
                   #{waitlistNumber}
@@ -125,15 +125,15 @@ export default function WaitlistForm() {
               </div>
 
               <p className="text-xs font-light leading-relaxed text-neutral-300">
-                A Project Atlas partner will review your Instagram profile and contact you via WhatsApp within 48 hours to schedule your private design preview and digital storefront onboarding.
+                A Project Atlas partner will review your Instagram profile and contact you via WhatsApp within 1 working day to schedule your catalog upload and shop onboarding.
               </p>
 
               <button
                 onClick={() => {
                   setSuccess(false);
-                  setFormData({ brandName: '', instagram: '', category: '', email: '', whatsapp: '' });
+                  setFormData({ brandName: '', instagram: '', category: '', whatsapp: '' });
                 }}
-                className="mt-4 text-[10px] font-mono uppercase text-neutral-500 hover:text-white tracking-widest transition-colors"
+                className="mt-4 text-[10px] font-mono uppercase text-neutral-300 hover:text-white tracking-widest transition-colors font-medium"
               >
                 Submit another brand
               </button>
@@ -150,13 +150,13 @@ export default function WaitlistForm() {
             >
               <div className="text-center mb-10">
                 <span className="text-xs font-mono tracking-[0.2em] text-gold-accent uppercase">
-                  05 // SECURE INVITATION
+                  09 // APPLY IN 2 MINUTES
                 </span>
                 <h3 className="mt-3 text-2xl font-light text-white tracking-tight sm:text-3xl">
-                  Join the Founding Circle
+                  Join as a Seller
                 </h3>
-                <p className="mt-3 text-xs font-light text-neutral-400 leading-relaxed">
-                  We are launching with a curated group of 20 independent brands. Secure your priority onboarding and enjoy early developer benefits.
+                <p className="mt-3 text-xs font-light text-neutral-300 leading-relaxed">
+                  We are launching with a select group of independent Pakistani brands. Apply now to lock in free onboarding and start selling.
                 </p>
               </div>
 
@@ -164,7 +164,7 @@ export default function WaitlistForm() {
                 
                 {/* Brand Name */}
                 <div>
-                  <label htmlFor="brandName" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
+                  <label htmlFor="brandName" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-300 mb-2 font-medium">
                     Brand Name
                   </label>
                   <input
@@ -181,7 +181,7 @@ export default function WaitlistForm() {
 
                 {/* Instagram Handle */}
                 <div>
-                  <label htmlFor="instagram" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
+                  <label htmlFor="instagram" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-300 mb-2 font-medium">
                     Instagram Handle
                   </label>
                   <input
@@ -199,7 +199,7 @@ export default function WaitlistForm() {
 
                 {/* Category Dropdown */}
                 <div>
-                  <label htmlFor="category" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
+                  <label htmlFor="category" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-300 mb-2 font-medium">
                     Brand Category
                   </label>
                   <div className="relative">
@@ -211,7 +211,7 @@ export default function WaitlistForm() {
                       className="w-full bg-white/5 border border-white/5 hover:border-white/10 focus:border-gold-accent/40 rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none transition-all appearance-none cursor-pointer"
                       required
                     >
-                      <option value="" disabled className="bg-black text-neutral-600">Select Category</option>
+                      <option value="" disabled className="bg-black text-neutral-400">Select Category</option>
                       {categories.map((cat) => (
                         <option key={cat} value={cat} className="bg-[#0c0c0c] text-white">
                           {cat}
@@ -219,32 +219,15 @@ export default function WaitlistForm() {
                       ))}
                     </select>
                     {/* Select Dropdown arrow icon decoration */}
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-neutral-500">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-neutral-300">
                       <span className="text-[8px] font-mono">▼</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Email Address */}
-                <div>
-                  <label htmlFor="email" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="e.g. owner@noirpret.pk"
-                    className="w-full bg-white/5 border border-white/5 hover:border-white/10 focus:border-gold-accent/40 rounded-xl px-4 py-3.5 text-xs text-white placeholder-neutral-600 focus:outline-none transition-all"
-                    required
-                  />
-                </div>
-
                 {/* WhatsApp Number */}
                 <div>
-                  <label htmlFor="whatsapp" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-400 mb-2">
+                  <label htmlFor="whatsapp" className="block text-[10px] font-mono uppercase tracking-widest text-neutral-300 mb-2 font-medium">
                     WhatsApp Number
                   </label>
                   <input
@@ -271,15 +254,26 @@ export default function WaitlistForm() {
                   </motion.div>
                 )}
 
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-white text-black py-4 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] transition-all hover:bg-gold-light hover:shadow-[0_0_20px_rgba(229,197,131,0.15)] flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span>{loading ? 'Submitting Application...' : 'Secure Founding Entry'}</span>
-                  {!loading && <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
-                </button>
+                {/* Submit button & Urdu sub-label & Reassurance */}
+                <div className="flex flex-col gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-white text-black py-4 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] transition-all hover:bg-gold-light hover:shadow-[0_0_20px_rgba(229,197,131,0.15)] flex flex-col items-center justify-center gap-1 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{loading ? 'Submitting Application...' : 'Join as a Seller'}</span>
+                      {!loading && <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                    </span>
+                    <span className="text-[9px] font-mono tracking-widest text-neutral-500 uppercase block font-normal group-hover:text-black/60 transition-colors">
+                      Apna brand ab Pakistan ke har sheher tak.
+                    </span>
+                  </button>
+                  
+                  <div className="text-center text-[10px] font-mono tracking-widest text-neutral-350 uppercase leading-relaxed">
+                    No fee. No contract. We&apos;ll WhatsApp you within one working day.
+                  </div>
+                </div>
 
               </form>
             </motion.div>

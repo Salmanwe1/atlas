@@ -29,11 +29,10 @@ export default function PreviewMockup() {
         <div className="lg:col-span-4 flex flex-col gap-4">
           <button
             onClick={() => setActiveTab('storefront')}
-            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${
-              activeTab === 'storefront'
+            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${activeTab === 'storefront'
                 ? 'bg-white/5 border-gold-accent/40 shadow-[0_0_20px_rgba(197,168,128,0.05)]'
                 : 'bg-transparent border-white/5 hover:border-white/10'
-            }`}
+              }`}
           >
             <div className={`p-3 rounded-xl ${activeTab === 'storefront' ? 'bg-gold-accent/10 text-gold-accent' : 'bg-white/5 text-neutral-500'}`}>
               <Layout className="h-5 w-5" />
@@ -46,11 +45,10 @@ export default function PreviewMockup() {
 
           <button
             onClick={() => setActiveTab('orders')}
-            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${
-              activeTab === 'orders'
+            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${activeTab === 'orders'
                 ? 'bg-white/5 border-gold-accent/40 shadow-[0_0_20px_rgba(197,168,128,0.05)]'
                 : 'bg-transparent border-white/5 hover:border-white/10'
-            }`}
+              }`}
           >
             <div className={`p-3 rounded-xl ${activeTab === 'orders' ? 'bg-gold-accent/10 text-gold-accent' : 'bg-white/5 text-neutral-500'}`}>
               <CreditCard className="h-5 w-5" />
@@ -63,11 +61,10 @@ export default function PreviewMockup() {
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${
-              activeTab === 'analytics'
+            className={`flex items-center gap-4 p-6 rounded-2xl border text-left transition-all ${activeTab === 'analytics'
                 ? 'bg-white/5 border-gold-accent/40 shadow-[0_0_20px_rgba(197,168,128,0.05)]'
                 : 'bg-transparent border-white/5 hover:border-white/10'
-            }`}
+              }`}
           >
             <div className={`p-3 rounded-xl ${activeTab === 'analytics' ? 'bg-gold-accent/10 text-gold-accent' : 'bg-white/5 text-neutral-500'}`}>
               <BarChart2 className="h-5 w-5" />
@@ -82,7 +79,7 @@ export default function PreviewMockup() {
         {/* Mockup Display (Right) */}
         <div className="lg:col-span-8 flex justify-center items-center">
           <div className="glass-card w-full max-w-2xl rounded-2xl border border-white/5 overflow-hidden shadow-2xl relative">
-            
+
             {/* Window control header */}
             <div className="flex items-center justify-between px-6 py-4 bg-black/40 border-b border-white/5">
               <div className="flex gap-2">
@@ -99,7 +96,7 @@ export default function PreviewMockup() {
             {/* Mockup Body Content */}
             <div className="p-8 min-h-[400px] flex items-center justify-center bg-black/20">
               <AnimatePresence mode="wait">
-                
+
                 {/* 1. EDITORIAL STOREFRONT PREVIEW */}
                 {activeTab === 'storefront' && (
                   <motion.div
@@ -119,13 +116,13 @@ export default function PreviewMockup() {
                         <span className="text-[9px] font-mono tracking-widest text-gold-accent/70 uppercase z-20 absolute top-4">
                           ATLAS MODEL
                         </span>
-                        
+
                         {/* Silk geometric rendering */}
                         <div className="w-24 h-24 rounded-full bg-gold-accent/15 blur-xl absolute" />
                         <div className="w-12 h-12 rounded-full border border-gold-accent/40 flex items-center justify-center z-20">
                           <span className="text-[9px] font-serif italic text-gold-accent">A</span>
                         </div>
-                        
+
                         <div className="absolute bottom-4 left-4 right-4 z-20">
                           <span className="text-[10px] font-light text-white block tracking-wider uppercase font-mono">
                             Noir Velvet Silk
@@ -259,7 +256,7 @@ export default function PreviewMockup() {
                       </div>
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wide">Avg. Order Value</span>
-                        <span className="text-lg font-light text-white block mt-1 font-mono">PKR 15,200</span>
+                        <span className="text-lg font-light text-white block mt-1 font-mono">PKR 9,200</span>
                         <span className="text-[9px] text-neutral-400 font-mono">Based on 55 sales</span>
                       </div>
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
@@ -272,7 +269,7 @@ export default function PreviewMockup() {
                     {/* Chart Mockup */}
                     <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-4">
                       <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-wider block">Customer Locations</span>
-                      
+
                       <div className="space-y-2">
                         {/* Karachi bar */}
                         <div>

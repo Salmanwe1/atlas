@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { brandName, instagram, category, email, whatsapp } = body;
+    const { brandName, instagram, category, whatsapp } = body;
 
     // Check if Supabase environment variables are configured
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -16,63 +16,33 @@ export async function POST(request: Request) {
     }
 
     // Validate fields
-    if (!brandName || !instagram || !category || !email || !whatsapp) {
+    if (!brandName || !instagram || !category || !whatsapp) {
       return NextResponse.json(
         { error: 'All fields are required.' },
         { status: 400 }
       );
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Please enter a valid email address.' },
-        { status: 400 }
-      );
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
     const normalizedInsta = instagram.trim().replace(/^@/, '').toLowerCase();
+    // Generate a unique fallback email to satisfy database NOT NULL/UNIQUE constraints
+    const normalizedEmail = `seller_${normalizedInsta}@atlas-placeholder.com`;
 
-    // Check if email or instagram is already registered in parallel
-    const [emailCheck, instaCheck] = await Promise.all([
-      supabase
-        .from('waitlist')
-        .select('email')
-        .ilike('email', normalizedEmail)
-        .maybeSingle(),
-      supabase
-        .from('waitlist')
-        .select('instagram')
-        .or(`instagram.ilike.${normalizedInsta},instagram.ilike.@${normalizedInsta}`)
-        .maybeSingle()
-    ]);
+    // Check if instagram is already registered
+    const { data: instaCheck, error: instaCheckError } = await supabase
+      .from('waitlist')
+      .select('instagram')
+      .or(`instagram.ilike.${normalizedInsta},instagram.ilike.@${normalizedInsta}`)
+      .maybeSingle();
 
-    if (emailCheck.error) {
-      console.error('Database error checking email:', emailCheck.error);
+    if (instaCheckError) {
+      console.error('Database error checking Instagram:', instaCheckError);
       return NextResponse.json(
         { error: 'Database validation check failed.' },
         { status: 500 }
       );
     }
 
-    if (instaCheck.error) {
-      console.error('Database error checking Instagram:', instaCheck.error);
-      return NextResponse.json(
-        { error: 'Database validation check failed.' },
-        { status: 500 }
-      );
-    }
-
-    if (emailCheck.data) {
-      return NextResponse.json(
-        { error: 'This email has already joined the waitlist.' },
-        { status: 409 }
-      );
-    }
-
-    if (instaCheck.data) {
+    if (instaCheck) {
       return NextResponse.json(
         { error: 'This Instagram handle has already joined the waitlist.' },
         { status: 409 }
@@ -98,7 +68,7 @@ export async function POST(request: Request) {
       // Handle race condition/uniqueness violation
       if (insertError.code === '23505') {
         return NextResponse.json(
-          { error: 'This email or Instagram handle has already joined the waitlist.' },
+          { error: 'This Instagram handle has already joined the waitlist.' },
           { status: 409 }
         );
       }
@@ -121,7 +91,7 @@ export async function POST(request: Request) {
       message: 'Successfully registered for waitlist',
       waitlistNumber: Number(newEntry.waitlist_number),
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Waitlist API Error:', error);
     return NextResponse.json(
       { error: 'An unexpected error occurred. Please try again later.' },
