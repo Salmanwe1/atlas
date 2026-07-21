@@ -28,7 +28,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     // Expose Lenis instance globally in development for debugging scroll-bound animations
     if (process.env.NODE_ENV === 'development') {
-      (window as any).lenis = lenis;
+      (window as Record<string, unknown>).lenis = lenis;
     }
 
     return () => {
